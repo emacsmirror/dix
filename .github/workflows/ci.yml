@@ -1,0 +1,41 @@
+---
+
+name: Run init-apertium.el on various platforms
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:                     # weekly
+    - cron: '0 10 1 * *'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Emacs
+        run: |
+          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+            sudo apt-get update
+            sudo apt-get install -y emacs
+          elif [ "${{ matrix.os }}" == "macos-latest" ]; then
+            brew install emacs
+          else
+            echo "Unexpected platform ${{ matrix.os }}" >&2
+            exit 1
+          fi
+      - run: mkdir -p ~/.emacs.d/
+      - run: curl https://raw.githubusercontent.com/unhammer/dix/master/init-apertium.el > ~/.emacs.d/init-apertium.el
+      - run: echo '(load "~/.emacs.d/init-apertium.el")' >> ~/.emacs.d/init.el
+      - name: First run – download packages from melpa
+        run: emacs --no-window-system --batch --load ~/.emacs.d/init.el --eval '(kill-emacs)'
+      - name: Ensure we have cg-mode
+        run: emacs --no-window-system --batch --load ~/.emacs.d/init.el --eval '(cg-mode)'
+      - name: Ensure we have hfst-mode
+        run: emacs --no-window-system --batch --load ~/.emacs.d/init.el --eval '(hfst-mode)'
+      - name: Ensure we have dix-mode
+        run: emacs --no-window-system --batch --load ~/.emacs.d/init.el --eval '(switch-to-buffer "init.el") (dix-mode)'
