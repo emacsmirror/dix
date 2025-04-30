@@ -163,7 +163,7 @@ Entering dix-mode calls the hook dix-mode-hook.
   :keymap     dix-mode-map
   :require    nxml-mode
 
-  (when (member (file-name-extension (buffer-file-name)) '("dix" "metadix"))
+  (when (member (file-name-extension (or (buffer-file-name) "")) '("dix" "metadix"))
     (font-lock-add-keywords nil
                     '(("<[lr]>\\(?:[^<]\\|<b/>\\)*\\( \\)"
                        . (progn         ; based on rng-mark-error
@@ -1401,19 +1401,19 @@ wish."
 
 (defun dix-is-transfer ()
   "True if buffer file name transfer-like (rather than dix)."
-  (string-match-p "[.]..+-..+[.]t[0-9]x" (buffer-file-name)))
+  (string-match-p "[.]..+-..+[.]t[0-9]x" (or (buffer-file-name) "")))
 
 (defun dix-is-lrx ()
   "True if buffer file name lrx-like (rather than dix)."
-  (string-match-p "[.]..+-..+[.]\\(?:meta\\)?lrx" (buffer-file-name)))
+  (string-match-p "[.]..+-..+[.]\\(?:meta\\)?lrx" (or (buffer-file-name) "")))
 
 (defun dix-is-bidix ()
   "True if buffer file name bidix-like (rather than monodix)."
-  (string-match-p "[.]..+-..+[.]dix" (buffer-file-name)))
+  (string-match-p "[.]..+-..+[.]dix" (or (buffer-file-name) "")))
 
 (defun dix-is-dix ()
   "True if buffer file name bidix-like (rather than monodix)."
-  (string-match-p ".+[.]\\(?:meta\\)?dix" (buffer-file-name)))
+  (string-match-p ".+[.]\\(?:meta\\)?dix" (or (buffer-file-name) "")))
 
 (defun dix-word-search-forward (&optional whole-word)
   "Incremental word-search for dix files.
